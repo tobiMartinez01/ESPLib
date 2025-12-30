@@ -78,8 +78,8 @@ function ESPLib:Scan()
 		local CustomData = self:CheckForCustom(Adornee)
 
 		if #self.Configs.Custom > 0 and CustomData then
-			Adornee = Adornee[CustomData.Adornee]
-			Color = CustomData.Color
+			if CustomData.Adornee then Adornee = Adornee[CustomData.Adornee] end
+			if CustomData.Color then Color = CustomData.Color end
 		end
 
 		local Address = object.Address
