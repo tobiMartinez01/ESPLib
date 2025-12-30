@@ -33,7 +33,7 @@ local function Constructor(
 		}
 	}
 
-	self.Enabled = true
+	self.ESPEnabled = true
 	self.Check = Check
 
 	self.IgnorePlayer = function(Object)
@@ -163,7 +163,7 @@ end
 
 --// METHODS //--
 function ESPLib:Init()
-	while self.Enabled do
+	while self.ESPEnabled do
 		self:Scan()
 		self:Debug()
 		task.wait(2)
@@ -171,7 +171,7 @@ function ESPLib:Init()
 end
 
 function ESPLib:Toggle()
-	self.Enabled = not self.Enabled
+	self.ESPEnabled = not self.ESPEnabled
 	self:Init()
 end
 
