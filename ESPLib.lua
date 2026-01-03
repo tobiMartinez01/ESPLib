@@ -69,7 +69,7 @@ end
 
 function ESPLib:Scan()
 	for _, targetDir in pairs(self.Configs.TargetDir) do
-		for _, object in pairs(targetDir:GetChildren()) do
+		for _, object in pairs(targetDir.Path:GetChildren()) do
 			if not ((self.Check(object) and self.IgnorePlayer(object)) and not self.ESPCache[object.Address]) then
 				continue
 			end
