@@ -7,7 +7,7 @@ local Camera = workspace.CurrentCamera :: Camera
 local function Constructor(
 	Check: (BasePart | Model) -> boolean,
 	Configs: {
-		TargetDir: Instance,
+		TargetDir: { { Path: Instance } },
 		Distance: number,
 
 		Text: boolean,
@@ -68,74 +68,76 @@ function ESPLib:CheckForCustom(Adornee)
 end
 
 function ESPLib:Scan()
-	for _, object in pairs(self.Configs.TargetDir:GetChildren()) do
-		if not ((self.Check(object) and self.IgnorePlayer(object)) and not self.ESPCache[object.Address]) then
-			continue
-		end
+	for _, targetDir in pairs(self.Configs.TargetDir) do
+		for _, object in pairs(targetDir:GetChildren()) do
+			if not ((self.Check(object) and self.IgnorePlayer(object)) and not self.ESPCache[object.Address]) then
+				continue
+			end
 
-		local Adornee = object :: BasePart | Model
-		local Color = Color3.fromRGB(255, 0, 0)
-		local CustomData = self:CheckForCustom(Adornee)
+			local Adornee = object :: BasePart | Model
+			local Color = Color3.fromRGB(255, 0, 0)
+			local CustomData = self:CheckForCustom(Adornee)
 
-		if #self.Configs.Custom > 0 and CustomData then
-			if CustomData.Adornee then Adornee = Adornee[CustomData.Adornee] end
-			if CustomData.Color then Color = CustomData.Color end
-		end
+			if #self.Configs.Custom > 0 and CustomData then
+				if CustomData.Adornee then Adornee = Adornee[CustomData.Adornee] end
+				if CustomData.Color then Color = CustomData.Color end
+			end
 
-		local Address = object.Address
-		local Text = Drawing.new("Text")
-		local Circle = Drawing.new("Circle")
+			local Address = object.Address
+			local Text = Drawing.new("Text")
+			local Circle = Drawing.new("Circle")
 
-		self.ESPCache[Address] = {
-			Adornee = object,
-			Drawing = {
-				Text = Text,
-				Circle = Circle,
-			},
-		}
+			self.ESPCache[Address] = {
+				Adornee = object,
+				Drawing = {
+					Text = Text,
+					Circle = Circle,
+				},
+			}
 
-		Text.Text = object.Name
-		Text.Color = Color
-		Text.Size = self.Configs.TextSize
-		Text.Center = true
+			Text.Text = object.Name
+			Text.Color = Color
+			Text.Size = self.Configs.TextSize
+			Text.Center = true
 
-		Circle.Thickness = 2
-		Circle.NumSides = 6
-		Circle.Color = Color
+			Circle.Thickness = 2
+			Circle.NumSides = 6
+			Circle.Color = Color
 
-		spawn(function()
-			-- Update esp --
-			while isExist(Adornee) and isExist(object.Parent) do
-				local screenPos, visible = WorldToScreen(Adornee.Position)
-				local distance = Magnitude(Camera.Position - Adornee.Position)
+			spawn(function()
+				-- Update esp --
+				while isExist(Adornee) and isExist(object.Parent) do
+					local screenPos, visible = WorldToScreen(Adornee.Position)
+					local distance = Magnitude(Camera.Position - Adornee.Position)
 
-				if screenPos and visible then
-					local additionalOffset = Vector2.new()
+					if screenPos and visible then
+						local additionalOffset = Vector2.new()
 
-					if Circle.Visible and distance then
-						Circle.Radius = self.Configs.Radius * (self.Configs.Distance / distance)
-						additionalOffset = Vector2.new(0, Circle.Radius + 2)
+						if Circle.Visible and distance then
+							Circle.Radius = self.Configs.Radius * (self.Configs.Distance / distance)
+							additionalOffset = Vector2.new(0, Circle.Radius + 2)
+						end
+
+						Text.Position = screenPos + additionalOffset
+						Circle.Position = screenPos
 					end
 
-					Text.Position = screenPos + additionalOffset
-					Circle.Position = screenPos
+					if Text.Visible ~= visible then
+						Text.Visible = visible and self.Configs.Text
+						Circle.Visible = visible and self.Configs.Circle
+					end
+
+					task.wait()
 				end
 
-				if Text.Visible ~= visible then
-					Text.Visible = visible and self.Configs.Text
-					Circle.Visible = visible and self.Configs.Circle
+				-- Clean up --
+				for _, drawing in pairs(self.ESPCache[Address].Drawing) do
+					drawing:Remove()
 				end
 
-				task.wait()
-			end
-
-			-- Clean up --
-			for _, drawing in pairs(self.ESPCache[Address].Drawing) do
-				drawing:Remove()
-			end
-
-			self.ESPCache[Address] = nil
-		end)
+				self.ESPCache[Address] = nil
+			end)
+		end
 	end
 end
 
@@ -176,4 +178,3 @@ function ESPLib:Toggle()
 end
 
 return Constructor
-
