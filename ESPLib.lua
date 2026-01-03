@@ -53,7 +53,7 @@ local function Magnitude(Vector3: Vector3): number
 	return math.sqrt(Vector3.X ^ 2 + Vector3.Y ^ 2 + Vector3.Z ^ 2)
 end
 
-local function isExist(Instance: Instance): boolean?
+local function isExist(Instance: Instance?): boolean?
 	return Instance and Instance:IsDescendantOf(game)
 end
 
@@ -106,7 +106,7 @@ function ESPLib:Scan()
 
 			spawn(function()
 				-- Update esp --
-				while isExist(Adornee) and isExist(object.Parent) do
+				while isExist(Adornee) and isExist(Adornee.Parent) do
 					local screenPos, visible = WorldToScreen(Adornee.Position)
 					local distance = Magnitude(Camera.Position - Adornee.Position)
 
