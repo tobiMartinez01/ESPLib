@@ -105,7 +105,7 @@ function ESPLib:Scan()
 
 		spawn(function()
 			-- Update esp --
-			while isExist(object) and isExist(object.Parent) do
+			while isExist(Adornee) and isExist(object.Parent) do
 				local screenPos, visible = WorldToScreen(Adornee.Position)
 				local distance = Magnitude(Camera.Position - Adornee.Position)
 
@@ -176,3 +176,4 @@ function ESPLib:Toggle()
 end
 
 return Constructor
+
